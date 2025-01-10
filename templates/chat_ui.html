@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Nutrition Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px; }
+        .chat-container { max-width: 600px; margin: auto; }
+        .message { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .user { background-color: #d1ecf1; text-align: right; }
+        .assistant { background-color: #e2e3e5; }
+        input[type="text"] { width: 100%; padding: 10px; border-radius: 5px; margin-top: 10px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>🍎 Diabetes Nutrition Chatbot</h2>
+        <div id="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+        <input type="text" id="user-input" placeholder="Ask about diabetes-friendly meals..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+
+        // Display a message in the chat box
+        function displayMessage(content, role) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", role);
+            messageDiv.innerText = content;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the bottom
+        }
+
+        // Function to send a message to the backend and receive a response
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                // Display user's message
+                displayMessage(message, "user");
+                userInput.value = ""; // Clear input field
+
+                // Send request to the FastAPI backend
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: message }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    displayMessage(data.response, "assistant");
+                } else {
+                    displayMessage("Error: Could not get response", "assistant");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
